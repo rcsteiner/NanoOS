@@ -2,74 +2,9 @@
 // 
 // 
 
-#include "Scheduler.h"
+#include "pch.h"
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// <summary>
-//  Method: Adjust.
-// </summary>
-// <param name="delta">  The delta.</param>
-// <returns>
-//  True if successful
-// </returns>
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool SchedEntry::Adjust(int32_t& delta)
-{
-	auto v = ms();
-	if (v < delta)
-	{
-		v = 0;
-		delta -= v;
-		ms(v);
-		return false;
-	}
-
-	delta -= v;
-	ms(0);
-
-	return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// <summary>
-//  Method: Subtract.
-// </summary>
-// <param name="delayTime">  The delay Time.</param>
-// <returns>
-//  True if successful
-// </returns>
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool SchedEntry::Subtract(int32_t& delayTime)
-{
-	auto v = ms();
-	if (delayTime > v)
-	{
-		delayTime -= v;
-		return false;
-	}
-
-	ms(v - delayTime);
-
-	return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// <summary>
-//  Method: Set.
-// </summary>
-// <param name="prev">  The previous.</param>
-// <param name="next">  The next.</param>
-// <param name="fun">   The fun.</param>
-// <param name="ms">    The milliseconds.</param>
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SchedEntry::Set(byte prev, byte next, SchedFun fun, int32_t ms)
-{
-	d1 = (next << V_SHIFT) | (ms & V_MASK);
-	d2 = (prev << V_SHIFT) | (((int32_t)fun) & V_MASK); // note: limits the ptr to V_MASK range 24 bits is 16M
-}
-
-
-SchedEntry Scheduler::_queue[MAX_QUEUE];
+Task Scheduler::_queue[MAX_QUEUE];
 byte Scheduler::_head;
 byte Scheduler::_count;
 byte Scheduler::_free;
@@ -124,7 +59,7 @@ int Scheduler::AllocEntry()
 	}
 	else
 	{
-		Serial.println("ERROR - Scheduler queue is too small.");
+	//	Serial.println("ERROR - Scheduler queue is too small.");
 	}
 	return n;
 }
@@ -180,7 +115,7 @@ void Scheduler::InsertAfter(int atPosition, byte newEntry)
 // <param name="fun">  The fun.</param>
 // <param name="ms">   The milliseconds.</param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Scheduler::Schedule(SchedFun fun, int32_t ms)
+void Scheduler::Schedule(TaskFun fun, int32_t ms)
 {
 	int i = _head;
 
@@ -320,7 +255,7 @@ bool SchedEntry2::Subtract(int32_t& delayTime)
 // <param name="fun">   The fun.</param>
 // <param name="ms">    The milliseconds.</param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void SchedEntry2::Set(SchedEntry2* p, SchedEntry2* n, SchedFun fn, int32_t msDelay)
+void SchedEntry2::Set(SchedEntry2* p, SchedEntry2* n, TaskFun fn, int32_t msDelay)
 {
 	prev=p;
 	next=n;
@@ -386,7 +321,7 @@ SchedEntry2* Scheduler2::AllocEntry()
 	}
 	else
 	{
-		Serial.println("ERROR - Scheduler queue is too small.");
+	//	Serial.println("ERROR - Scheduler queue is too small.");
 	}
 	return n;
 }
@@ -442,7 +377,7 @@ void Scheduler2::InsertAfter(SchedEntry2* atPosition, SchedEntry2* newEntry)
 // <param name="fun">  The fun.</param>
 // <param name="ms">   The milliseconds.</param>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Scheduler2::Schedule(SchedFun fn, int32_t msDelay)
+void Scheduler2::Schedule(TaskFun fn, int32_t msDelay)
 {
 	auto i = _head;
 	auto n = AllocEntry();

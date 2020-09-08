@@ -1,0 +1,7 @@
+Release
+Debug
+obj
+.vs
+*.user
+*.filters
+packages
